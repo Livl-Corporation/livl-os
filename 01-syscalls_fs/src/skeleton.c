@@ -21,8 +21,13 @@
 #define MAX_PATH_LENGTH 4096
 
 
-#define USAGE_SYNTAX "[OPTIONS] -i INPUT -o OUTPUT"
-#define USAGE_PARAMS "OPTIONS:\n\
+#define USAGE_SYNTAX "[COMMAND] [OPTIONS] -i INPUT -o OUTPUT"
+#define USAGE_PARAMS "COMMANDS:\n\
+  copy : copy a file to another\n\
+  reverse : reverse a file text\n\
+  ls : \n\
+  \n\
+OPTIONS:\n\
   -i, --input  INPUT_FILE  : input file\n\
   -o, --output OUTPUT_FILE : output file\n\
 ***\n\
@@ -116,6 +121,7 @@ int main(int argc, char** argv)
    * Binary variables
    * (could be defined in a structure)
    */
+  char* bin_command = argv[1];
   short int is_verbose_mode = 0;
   char* bin_input_param = NULL;
   char* bin_output_param = NULL;
@@ -151,8 +157,10 @@ int main(int argc, char** argv)
 
         free_if_needed(bin_input_param);
         free_if_needed(bin_output_param);
+        free_if_needed(bin_command);
  
         exit(EXIT_SUCCESS);
+      
       default :
         break;
     }
@@ -169,10 +177,12 @@ int main(int argc, char** argv)
     // Freeing allocated data
     free_if_needed(bin_input_param);
     free_if_needed(bin_output_param);
+    free_if_needed(bin_command);
     // Exiting with a failure ERROR CODE (== 1)
     exit(EXIT_FAILURE);
   }
 
+  printf("** COMMAND **\n%s\n", bin_command);
 
   // Printing params
   dprintf(1, "** PARAMS **\n%-8s: %s\n%-8s: %s\n%-8s: %d\n", 
@@ -180,15 +190,54 @@ int main(int argc, char** argv)
           "output",  bin_output_param, 
           "verbose", is_verbose_mode);
 
-  // Business logic must be implemented at this point
 
-  /* LOREM IPSUM DOT SIR AMET */
+  // Switch case on command
+  int result = 0;
+  if(strcmp(bin_command, "copy") == 0)
+  {
+    printf("Copy\n");
+    result = copy_file(bin_input_param, bin_output_param);
+  }
+  else if(strcmp(bin_command, "reverse") == 0)
+  {
+    printf("reverse\n");
+  }
+  else if(strcmp(bin_command, "ls") == 0)
+  {
+    printf("ls\n");
+  }
+  else
+  {
+    printf("Unknown command\n");
+    free_if_needed(bin_input_param);
+    free_if_needed(bin_output_param);
+    free_if_needed(bin_command);
+    exit(EXIT_FAILURE);
+  }
 
+  if(result != 0)
+  {
+    printf("Error while executing command\n");
+    free_if_needed(bin_input_param);
+    free_if_needed(bin_output_param);
+    free_if_needed(bin_command);
+    exit(EXIT_FAILURE);
+  }
 
   // Freeing allocated data
   free_if_needed(bin_input_param);
   free_if_needed(bin_output_param);
-
+  free_if_needed(bin_command);
 
   return EXIT_SUCCESS;
+}
+
+/**
+ * The copy_file function copies the content of a file to another.
+ * \param bin_input_param: the path of the input file to copy
+ * \param bin_output_param: the path of the output file
+*/
+int copy_file(char* bin_input_param, char* bin_output_param)
+{
+
 }
