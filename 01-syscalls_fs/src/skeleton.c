@@ -202,6 +202,7 @@ int main(int argc, char** argv)
   else if(strcmp(bin_command, "reverse") == 0)
   {
     printf("reverse\n");
+    result = reverse_file(bin_input_param);
   }
   else if(strcmp(bin_command, "ls") == 0)
   {
@@ -306,5 +307,75 @@ int copy_file(char* bin_input_param, char* bin_output_param)
   free(buffer);
 
   printf("Copie du fichier terminée.\n");
+  return 0;
+}
+
+
+/**
+ * The reverse_file function reverses the content of a file.
+ * \param bin_input_param: the path of the input file to reverse
+*/
+int reverse_file(char* bin_input_param)
+{
+    int input_fd = open(bin_input_param, O_RDONLY);
+
+    if (input_fd == -1)
+    {
+        perror("Error opening input file");
+        return -1;
+    }
+
+    /**
+     * off_t lseek(int __fd, off_t __offset, int __whence)
+     * __fd : file descriptor
+     * __offset : décalage à partir duquel on veut se positionner
+     * __whence : position à partir de laquelle on veut se positionner
+     * 
+     * off_t = long int
+     * 
+     * \return la nouvelle position du curseur
+    */
+    off_t file_size = lseek(input_fd, 0, SEEK_END);
+    
+    if (file_size == -1)
+    {
+        perror("Error seeking to end of file");
+        close(input_fd);
+        return -1;
+    }
+
+    // Parcourez le fichier à l'envers
+    for (off_t pos = file_size - 1; pos >= 0; pos--)
+    {
+        if (lseek(input_fd, pos, SEEK_SET) == -1)
+        {
+            perror("Error seeking to position in file");
+            close(input_fd);
+            return -1;
+        }
+
+        char c;
+        if (read(input_fd, &c, 1) == -1)
+        {
+            perror("Error reading from file");
+            close(input_fd);
+            return -1;
+        }
+
+        // Écriture du caractère inversé sur la sortie standard
+        if (write(STDOUT, &c, 1) == -1)
+        {
+            perror("Error writing to STDOUT");
+            close(input_fd);
+            return -1;
+        }
+    }
+
+    close(input_fd);
+    return 0;
+}
+
+int rewrite_ls_command()
+{
   return 0;
 }
