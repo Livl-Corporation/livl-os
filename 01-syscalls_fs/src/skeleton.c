@@ -7,12 +7,13 @@
  *
  * Basic parsing options skeleton exemple c file.
  */
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<errno.h>
-
-#include<getopt.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <getopt.h>
+#include <unistd.h>
 
 
 #define STDOUT 1
@@ -239,5 +240,66 @@ int main(int argc, char** argv)
 */
 int copy_file(char* bin_input_param, char* bin_output_param)
 {
+  int f1_src = open(bin_input_param, O_RDONLY);
+  if (f1_src == -1) {
+      perror("Erreur lors de l'ouverture du fichier source");
+      return errno;
+  }
 
+  /**
+  * Memo for me : 
+  * O_CREAT : créer le fichier s'il n'existe pas
+  * O_WRONLY : ouvrir le fichier en écriture
+  * O_TRUNC : vider le fichier s'il existe déjà
+  * 0666 : droits d'accès au fichier (lecture et écriture pour tout le monde)
+  */
+  int f2_dest = open(bin_output_param, O_CREAT | O_WRONLY | O_TRUNC, 0666);
+  if (f2_dest == -1) {
+      perror("Erreur lors de la création du fichier de destination");
+      close(f1_src);
+      return errno;
+  }
+
+  char* buffer = malloc(sizeof(char)*4096); // 1 octet = un caractère ASCII = 1 byte = 8 bits
+  ssize_t bytes_read;
+  ssize_t bytes_written;
+
+  /**
+   *  ssize_t read(int fd, void *buf, size_t count);
+   * fd : file descriptor
+   * buf : buffer dans lequel on va stocker les données lues
+   * count : nombre d'octets à lire = je dis de lire 1024 octetst à chaque fois
+   * \return le nombre de données réellement lues grâce au buffer
+   */
+
+  /**
+   *  ssize_t write(int fd, const void *buf, size_t count);
+   * fd : file descriptor
+   * buf : buffer dans lequel on va stocker les données à écrire
+   * count : nombre d'octets à écrire = je dis de écrire 1024 octets à chaque fois
+   * \return le nombre de données réellement lues grâce au buffer
+   */
+
+  while ((bytes_read = read(f1_src, buffer, sizeof(buffer))) > 0) {
+      bytes_written = write(f2_dest, buffer, bytes_read);
+      if (bytes_written != bytes_read) { 
+          perror("Erreur lors de l'écriture dans le fichier de destination");
+          close(f1_src);
+          close(f2_dest);
+          return errno;
+      }
+  }
+
+  if (bytes_read == -1) {
+      perror("Erreur lors de la lecture du fichier source");
+      close(f1_src);
+      close(f2_dest);
+      return errno;
+  }
+
+  close(f1_src);
+  close(f2_dest);
+
+  printf("Copie du fichier terminée.\n");
+  return 0;
 }
