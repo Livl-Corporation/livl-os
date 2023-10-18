@@ -7,34 +7,8 @@
  *
  * Basic parsing options skeleton exemple c file.
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <getopt.h>
-#include <unistd.h>
 
-
-#define STDOUT 1
-#define STDERR 2
-
-#define MAX_PATH_LENGTH 4096
-
-
-#define USAGE_SYNTAX "[COMMAND] [OPTIONS] -i INPUT -o OUTPUT"
-#define USAGE_PARAMS "COMMANDS:\n\
-  copy : copy a file to another\n\
-  reverse : reverse a file text\n\
-  ls : \n\
-  \n\
-OPTIONS:\n\
-  -i, --input  INPUT_FILE  : input file\n\
-  -o, --output OUTPUT_FILE : output file\n\
-***\n\
-  -v, --verbose : enable *verbose* mode\n\
-  -h, --help    : display this help\n\
-"
+#include "skeleton.h"
 
 /**
  * Procedure which displays binary usage
@@ -47,6 +21,21 @@ void print_usage(char* bin_name)
   dprintf(1, "USAGE: %s %s\n\n%s\n", bin_name, USAGE_SYNTAX, USAGE_PARAMS);
 }
 
+/** 
+ * Print method to display information in the console in blue color
+ * \param message the message to display
+ * \param ... list of args
+ * \return void
+*/
+void print_info(const char* message, ...)
+{
+  va_list args;
+  va_start(args, message);
+  printf("\033[1;34m");
+  vprintf(message, args);
+  printf("\033[0m");
+  va_end(args);  
+}
 
 /**
  * Procedure checks if variable must be free
@@ -83,33 +72,6 @@ char* dup_optarg_str()
 
   return str;
 }
-
-
-/**
- * Binary options declaration
- * (must end with {0,0,0,0})
- *
- * \see man 3 getopt_long or getopt
- * \see struct option definition
- */
-static struct option binary_opts[] = 
-{
-  { "help",    no_argument,       0, 'h' },
-  { "verbose", no_argument,       0, 'v' },
-  { "input",   required_argument, 0, 'i' },
-  { "output",  required_argument, 0, 'o' },
-  { 0,         0,                 0,  0  } 
-};
-
-/**
- * Binary options string
- * (linked to optionn declaration)
- *
- * \see man 3 getopt_long or getopt
- */ 
-const char* binary_optstr = "hvi:o:";
-
-
 
 /**
  * Binary main loop
@@ -158,10 +120,8 @@ int main(int argc, char** argv)
 
         free_if_needed(bin_input_param);
         free_if_needed(bin_output_param);
-        free_if_needed(bin_command);
  
         exit(EXIT_SUCCESS);
-      
       default :
         break;
     }
@@ -178,12 +138,9 @@ int main(int argc, char** argv)
     // Freeing allocated data
     free_if_needed(bin_input_param);
     free_if_needed(bin_output_param);
-    free_if_needed(bin_command);
     // Exiting with a failure ERROR CODE (== 1)
     exit(EXIT_FAILURE);
   }
-
-  printf("** COMMAND **\n%s\n", bin_command);
 
   // Printing params
   dprintf(1, "** PARAMS **\n%-8s: %s\n%-8s: %s\n%-8s: %d\n", 
@@ -191,29 +148,26 @@ int main(int argc, char** argv)
           "output",  bin_output_param, 
           "verbose", is_verbose_mode);
 
+  printf("** COMMAND **\nmethod  : %s\n", bin_command);
 
-  // Switch case on command
   int result = 0;
   if(strcmp(bin_command, "copy") == 0)
   {
-    printf("Copy\n");
     result = copy_file(bin_input_param, bin_output_param);
   }
   else if(strcmp(bin_command, "reverse") == 0)
   {
-    printf("reverse\n");
     result = reverse_file(bin_input_param);
   }
   else if(strcmp(bin_command, "ls") == 0)
   {
-    printf("ls\n");
+    result = ls_command(bin_input_param);
   }
   else
   {
     printf("Unknown command\n");
     free_if_needed(bin_input_param);
     free_if_needed(bin_output_param);
-    free_if_needed(bin_command);
     exit(EXIT_FAILURE);
   }
 
@@ -222,14 +176,12 @@ int main(int argc, char** argv)
     printf("Error while executing command\n");
     free_if_needed(bin_input_param);
     free_if_needed(bin_output_param);
-    free_if_needed(bin_command);
     exit(EXIT_FAILURE);
   }
 
   // Freeing allocated data
   free_if_needed(bin_input_param);
   free_if_needed(bin_output_param);
-  free_if_needed(bin_command);
 
   return EXIT_SUCCESS;
 }
@@ -238,8 +190,9 @@ int main(int argc, char** argv)
  * The copy_file function copies the content of a file to another.
  * \param bin_input_param: the path of the input file to copy
  * \param bin_output_param: the path of the output file
+ * \return 0 if it exit successfully
  * 
- * ./bin/skeleton copy -i 01_f1.txt -o text.txt
+ * ./bin/skeleton copy -i <input> -o <output>
 */
 int copy_file(char* bin_input_param, char* bin_output_param)
 {
@@ -306,7 +259,8 @@ int copy_file(char* bin_input_param, char* bin_output_param)
   close(f2_dest);
   free(buffer);
 
-  printf("Copie du fichier terminée.\n");
+  print_info("Copie du fichier terminée.\n");
+  print_info("Le fichier de destination se trouve ici : %s\n", bin_output_param);
   return 0;
 }
 
@@ -314,68 +268,150 @@ int copy_file(char* bin_input_param, char* bin_output_param)
 /**
  * The reverse_file function reverses the content of a file.
  * \param bin_input_param: the path of the input file to reverse
+ * \return 0 if it exit successfully
+ * 
+ * ./bin/skeleton reverse -i <input> -o <output>
 */
 int reverse_file(char* bin_input_param)
 {
-    int input_fd = open(bin_input_param, O_RDONLY);
+  int input_fd = open(bin_input_param, O_RDONLY);
 
-    if (input_fd == -1)
-    {
-        perror("Error opening input file");
-        return -1;
-    }
+  if (input_fd == -1)
+  {
+      perror("Error opening input file");
+      return -1;
+  }
 
-    /**
-     * off_t lseek(int __fd, off_t __offset, int __whence)
-     * __fd : file descriptor
-     * __offset : décalage à partir duquel on veut se positionner
-     * __whence : position à partir de laquelle on veut se positionner
-     * 
-     * off_t = long int
-     * 
-     * \return la nouvelle position du curseur
-    */
-    off_t file_size = lseek(input_fd, 0, SEEK_END);
-    
-    if (file_size == -1)
-    {
-        perror("Error seeking to end of file");
-        close(input_fd);
-        return -1;
-    }
+  /**
+   * off_t lseek(int __fd, off_t __offset, int __whence)
+   * __fd : file descriptor
+   * __offset : décalage à partir duquel on veut se positionner
+   * __whence : position à partir de laquelle on veut se positionner
+   * 
+   * off_t = long int
+   * 
+   * \return la nouvelle position du curseur
+  */
+  off_t file_size = lseek(input_fd, 0, SEEK_END);
+  
+  if (file_size == -1)
+  {
+      perror("Error seeking to end of file");
+      close(input_fd);
+      return -1;
+  }
 
-    // Parcourez le fichier à l'envers
-    for (off_t pos = file_size - 1; pos >= 0; pos--)
-    {
-        if (lseek(input_fd, pos, SEEK_SET) == -1)
-        {
-            perror("Error seeking to position in file");
-            close(input_fd);
-            return -1;
-        }
+  // Parcourez le fichier à l'envers
+  for (off_t pos = file_size - 1; pos >= 0; pos--)
+  {
+      if (lseek(input_fd, pos, SEEK_SET) == -1)
+      {
+          perror("Error seeking to position in file");
+          close(input_fd);
+          return -1;
+      }
 
-        char c;
-        if (read(input_fd, &c, 1) == -1)
-        {
-            perror("Error reading from file");
-            close(input_fd);
-            return -1;
-        }
+      char c;
+      if (read(input_fd, &c, 1) == -1)
+      {
+          perror("Error reading from file");
+          close(input_fd);
+          return -1;
+      }
 
-        // Écriture du caractère inversé sur la sortie standard
-        if (write(STDOUT, &c, 1) == -1)
-        {
-            perror("Error writing to STDOUT");
-            close(input_fd);
-            return -1;
-        }
-    }
+      // Écriture du caractère inversé sur la sortie standard
+      if (write(STDOUT, &c, 1) == -1)
+      {
+          perror("Error writing to STDOUT");
+          close(input_fd);
+          return -1;
+      }
+  }
 
-    close(input_fd);
-    return 0;
+  close(input_fd);
+  print_info("\nReverse done\n");
+  return 0;
 }
 
-int rewrite_ls_command()
+
+
+/**
+ * The ls_command function lists the metadata of files in a directory tree.
+ * \param bin_input_param: the path of the directory to list
+ * \return 0 if it exits successfully
+ * 
+ * ./bin/skeleton ls -i <input> -o <output>
+*/
+int ls_command(char* bin_input_param)
 {
+  DIR* dir = opendir(bin_input_param);
+
+  if (dir == NULL)
+  {
+    perror("Error opening directory");
+    return errno;
+  }
+
+  struct dirent* entry;
+  struct stat file_stat;
+  struct passwd* pw;
+  struct group* gr;
+  struct tm* tm_info;
+  char date_str[20];
+
+  while ((entry = readdir(dir)) != NULL)
+  {
+    char file_path[1024];
+    snprintf(file_path, sizeof(file_path), "%s/%s", bin_input_param, entry->d_name);
+
+    if (stat(file_path, &file_stat) == -1)
+    {
+      perror("Error getting file stats");
+      continue;
+    }
+
+    // File name
+    printf("%s\t", entry->d_name);
+
+    // Permissions
+    printf((S_ISDIR(file_stat.st_mode)) ? "d" : "-");
+    printf((file_stat.st_mode & S_IRUSR) ? "r" : "-");
+    printf((file_stat.st_mode & S_IWUSR) ? "w" : "-");
+    printf((file_stat.st_mode & S_IXUSR) ? "x" : "-");
+    printf((file_stat.st_mode & S_IRGRP) ? "r" : "-");
+    printf((file_stat.st_mode & S_IWGRP) ? "w" : "-");
+    printf((file_stat.st_mode & S_IXGRP) ? "x" : "-");
+    printf((file_stat.st_mode & S_IROTH) ? "r" : "-");
+    printf((file_stat.st_mode & S_IWOTH) ? "w" : "-");
+    printf((file_stat.st_mode & S_IXOTH) ? "x" : "-");
+    printf("\t");
+
+    // Owner
+    if ((pw = getpwuid(file_stat.st_uid)) != NULL)
+    {
+      printf("%s\t", pw->pw_name);
+    }
+    else
+    {
+      printf("%d\t", file_stat.st_uid);
+    }
+
+    if ((gr = getgrgid(file_stat.st_gid)) != NULL)
+    {
+      printf("%s\t", gr->gr_name);
+    }
+    else
+    {
+      printf("%d\t", file_stat.st_gid);
+    }
+
+    printf("%ld\t", file_stat.st_size); 
+
+    tm_info = localtime(&file_stat.st_mtime);  // Last modification date
+    strftime(date_str, sizeof(date_str), "%Y-%m-%d %H:%M:%S", tm_info);
+    printf("%s\n", date_str);
+  }
+
+  closedir(dir);
   return 0;
 }
