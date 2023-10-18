@@ -237,6 +237,8 @@ int main(int argc, char** argv)
  * The copy_file function copies the content of a file to another.
  * \param bin_input_param: the path of the input file to copy
  * \param bin_output_param: the path of the output file
+ * 
+ * ./bin/skeleton copy -i 01_f1.txt -o text.txt
 */
 int copy_file(char* bin_input_param, char* bin_output_param)
 {
@@ -251,9 +253,9 @@ int copy_file(char* bin_input_param, char* bin_output_param)
   * O_CREAT : créer le fichier s'il n'existe pas
   * O_WRONLY : ouvrir le fichier en écriture
   * O_TRUNC : vider le fichier s'il existe déjà
-  * 0666 : droits d'accès au fichier (lecture et écriture pour tout le monde)
+  * 0755 : les droits sont en octal
   */
-  int f2_dest = open(bin_output_param, O_CREAT | O_WRONLY | O_TRUNC, 0666);
+  int f2_dest = open(bin_output_param, O_CREAT | O_WRONLY | O_TRUNC, 0755);
   if (f2_dest == -1) {
       perror("Erreur lors de la création du fichier de destination");
       close(f1_src);
@@ -280,10 +282,11 @@ int copy_file(char* bin_input_param, char* bin_output_param)
    * \return le nombre de données réellement lues grâce au buffer
    */
 
-  while ((bytes_read = read(f1_src, buffer, sizeof(buffer))) > 0) {
+  while ((bytes_read = read(f1_src, buffer, 4096)) > 0) {
       bytes_written = write(f2_dest, buffer, bytes_read);
       if (bytes_written != bytes_read) { 
           perror("Erreur lors de l'écriture dans le fichier de destination");
+          free(buffer);
           close(f1_src);
           close(f2_dest);
           return errno;
@@ -294,11 +297,13 @@ int copy_file(char* bin_input_param, char* bin_output_param)
       perror("Erreur lors de la lecture du fichier source");
       close(f1_src);
       close(f2_dest);
+      free(buffer);
       return errno;
   }
 
   close(f1_src);
   close(f2_dest);
+  free(buffer);
 
   printf("Copie du fichier terminée.\n");
   return 0;
