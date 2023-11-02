@@ -13,15 +13,15 @@
 
 int main() 
 {
-    pid_t pid = fork();
+    pid_t child_pid = fork();
 
-    if (pid < PID_OF_CHILD_PROCESS) 
+    if (child_pid < PID_OF_CHILD_PROCESS) 
     {
         perror("ERROR : Fork failed.\n");
         return EXIT_FAILURE;
     }
 
-    if (pid == PID_OF_CHILD_PROCESS) 
+    if (child_pid == PID_OF_CHILD_PROCESS) 
     {
         printf("** CHILD PROCESS **\n");
         printf(" - Child PID: %d\n", getpid());
@@ -33,7 +33,7 @@ int main()
         int status;
         wait(&status);
         printf("** PARENT PROCESS **\n");
-        printf(" - Child PID: %d\n", pid);
+        printf(" - Child PID: %d\n", child_pid);
         if (WIFEXITED(status)) { // if child exited normally
             printf(" - Child exit code: %d\n", WEXITSTATUS(status));
         }
