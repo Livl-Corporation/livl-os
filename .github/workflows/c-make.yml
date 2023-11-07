@@ -1,0 +1,25 @@
+name: C - CI - Livl OS
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run make in each directory
+      run: |
+        for dir in */ ; do
+          if [ -f "${dir}Makefile" ]; then
+            echo "Running make in ${dir}"
+            make -C $dir
+          fi
+        done
+        
+#    - name: make 04-signals
+#      run: cd 04-signals && make
