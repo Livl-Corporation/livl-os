@@ -2,8 +2,7 @@ name: C - CI - Livl OS
 
 on:
   push:
-    branches: 
-      - '**'
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
