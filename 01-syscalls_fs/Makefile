@@ -22,8 +22,11 @@ AR_NAME=archive_$(EXEC).tar.gz
 
 
 all: $(SRC) $(EXEC)
+
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
     
-%.o:%.c
+%.o:%.c | $(BIN_DIR)
 	$(CC) $(CFLAGS) $< $(LDFLAGS) -o $@
 
 $(EXEC): $(OBJ) 
