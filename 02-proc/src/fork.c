@@ -39,7 +39,11 @@ int main()
         print_child_process_details();
     } else { 
         int status;
-        wait(&status); // wait for child to terminate -> dad process is blocked here
+        // wait for child to terminate -> dad process is blocked here
+        if (wait(&status) == -1) {
+            perror("ERROR: wait\n");
+            return EXIT_FAILURE;
+        }
         print_parent_process_details(child_pid, status);
     }
 

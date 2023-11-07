@@ -5,15 +5,18 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <string.h>
 #include <sys/wait.h>
 
-#define READ_END 0
-#define WRITE_END 1
-#define MESSAGE "root est connecté\n"
-#define MESSAGE_LENGTH 18
 #define PID_OF_CHILD_PROCESS 0
+#define BUFFER_SIZE 1024
+#define TEMP_FILE "/tmp/proc-exercise-XXXXXX" // last six characters of template must be “XXXXXX”
 
-void execute_command_in_child(const char* command, const char* argument, int fd[]);
-void check_root_and_display_message(int fd[]);
+void print_usage(char *program_name);
+void handle_child_process(char *command);
+void handle_parent_process();
+void read_temp_file();
 
 #endif //REDIRECT_STD_H
