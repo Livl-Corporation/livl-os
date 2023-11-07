@@ -3,13 +3,7 @@
  * @author Julien and Franck
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-
-#define PID_OF_CHILD_PROCESS 0
+#include "fork.h"
 
 void print_child_process_details() 
 {
