@@ -27,16 +27,16 @@ This project is developed in C language, so you need to have a C compiler instal
 - Each lab is in a folder named `<lab-number>-<lab-exercice>`
 - Each lab folder contains the following structure:
 
-  ```
-  ├── <lab-number>-<lab-exercice>
-    ├── bin/
-      ├── file
-    ├── include/
-      ├── file.h
-    ├── src/
-      ├── file.c
-    ├── Makefile
-  ```
+```
+<lab-number>-<lab-exercise>
+├── bin/
+│   └── file
+├── include/
+│   └── file.h
+├── src/
+│   └── file.c
+└── Makefile
+```
 
 
 # **🧍🏽Project team**
