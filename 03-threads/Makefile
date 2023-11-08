@@ -17,7 +17,7 @@ INC_DIR = include
 BIN_DIR = bin
 DIR_NAME = $(notdir $(shell pwd)) # Get the current directory name
 
-CFLAGS = -Wall -Wextra -Werror -I$(INC_DIR) # Define any compile-time flags
+CFLAGS = -Wall -Wextra -Werror -I$(INC_DIR) -lpthread # Define any compile-time flags
 SRCS = $(wildcard $(SRC_DIR)/*.c) # source directory (where the .c files are)
 OBJS = $(patsubst $(SRC_DIR)/%.c,$(BIN_DIR)/%.o,$(SRCS)) # list of all .c files in the SRC_DIR
 BINS = $(patsubst $(SRC_DIR)/%.c,$(BIN_DIR)/%,$(SRCS)) # list of all executables to build
