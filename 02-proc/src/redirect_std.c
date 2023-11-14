@@ -1,65 +1,71 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <fcntl.h>
+#include "redirect_std.h"
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        fprintf(stderr, "Usage: %s <message>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <command>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    pid_t pid;
-    int fd;
+    pid_t child_pid;
+    int fd_temp_file;
+
+    /**
+     * This is a template is needed to create a temporary file
+    */
+    char temp_file[] = TEMP_FILENAME;
 
     printf("Père (PID=%d)\n", getpid());
 
-    if ((pid = fork()) == -1) {
+    if ((child_pid = fork()) == -1) {
         perror("fork");
         exit(EXIT_FAILURE);
     }
 
-    if (pid == 0) { // Code exécuté par le fils
+    if (child_pid == PID_OF_CHILD_PROCESS) { 
         printf("Fils (PID=%d)\n", getpid());
 
-        // Ferme le descripteur STDOUT (1)
-        if (close(1) == -1) {
+        /**
+         * 2.2 : Close the standart output file descriptor (stdout)
+         *      --> But we get an error message on the terminal
+         *      --> <command of argv[1]>: write error: Bad file descriptor
+         *      --> We have this error since we run the command execpl() 
+         *          with the file descriptor STDOUT_FILENO closed
+         * 3. Close the error output file descriptor (stderr)
+         *     --> We don't get an error message on the terminal anymore
+         * */
+        if (close(STDERR_FILENO) == -1) {
             perror("close");
             exit(EXIT_FAILURE);
         }
 
         // Ouvre en création et écriture le fichier temporaire /tmp/proc-exercise
-        if ((fd = mkstemp("/tmp/proc-exercise.XXXXXX")) == -1) {
+        if ((fd_temp_file = mkstemp(temp_file)) == -1) {
             perror("mkstemp");
             exit(EXIT_FAILURE);
         }
 
-        // Affiche le numéro du descripteur de fichier ouvert
-        printf("Descripteur de fichier ouvert : %d\n", fd);
+        printf("Descripteur de fichier ouvert : %d\n", fd_temp_file);
 
-        // Utilise dup2 pour rediriger le descripteur de fichier vers STDOUT (1)
-        if (dup2(fd, 1) == -1) {
+        if (dup2(fd_temp_file, STDOUT_FILENO) == -1) {
             perror("dup2");
             exit(EXIT_FAILURE);
         }
 
-        // Exécute le programme affiché par son père
-        execlp(argv[1], argv[1], NULL);
+        close(fd_temp_file);
 
-        // Si execlp échoue, affiche une erreur
-        perror("execlp");
-        exit(EXIT_FAILURE);
-    } else { // Code exécuté par le père
-        // Attend la fin du fils
-        if (waitpid(pid, NULL, 0) == -1) {
-            perror("waitpid");
+        // Execute the command specified by argv[1]
+        if(execlp(argv[1], argv[1], NULL) == -1) {
+            perror("execlp");
             exit(EXIT_FAILURE);
-        }
+        } 
+    } 
 
-        printf("Père (PID=%d): That’s All Folks !\n", getpid());
+    if (waitpid(child_pid, NULL, 0) == -1) {
+        perror("waitpid");
+        exit(EXIT_FAILURE);
     }
+
+    printf("Père (PID=%d): Thats All Folks !\n", getpid());
 
     return 0;
 }
