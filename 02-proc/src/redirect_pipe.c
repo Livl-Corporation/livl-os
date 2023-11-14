@@ -1,67 +1,46 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include "redirect_pipe.h"
 
-void error(const char *msg) {
-    perror(msg);
-    exit(EXIT_FAILURE);
+void create_child_process(int* pipe_fd, pid_t* child_pid, char* command, char* command_arg, int std_fd, int pipe_fd_index) {
+    if ((*child_pid = fork()) == -1) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    }
+
+    if (*child_pid == PID_OF_CHILD_PROCESS) { 
+        close(pipe_fd[1 - pipe_fd_index]);
+
+        if (dup2(pipe_fd[pipe_fd_index], std_fd) == -1) {
+            perror("dup");
+            exit(EXIT_FAILURE);
+        }
+
+        close(pipe_fd[pipe_fd_index]);
+
+        if (execlp(command, command, command_arg, (char *)NULL) == -1) {
+            perror("execlp");
+            exit(EXIT_FAILURE);
+        }
+    }
 }
 
 int main() {
     int pipe_fd[2];
-    pid_t child_pid;
+    pid_t child_pid_ps, child_pid_grep;
 
-    // Création du pipe
     if (pipe(pipe_fd) == -1) {
-        error("Erreur lors de la création du pipe");
+        perror("pipe");
+        exit(EXIT_FAILURE);
     }
 
-    // Création du processus fils
-    if ((child_pid = fork()) == -1) {
-        error("Erreur lors de la création du processus fils");
-    }
+    create_child_process(pipe_fd, &child_pid_ps, "ps", "eaux", STDOUT_FILENO, STDOUT_FILENO);
+    create_child_process(pipe_fd, &child_pid_grep, "grep", "^root", STDIN_FILENO, STDIN_FILENO);
 
-    if (child_pid == 0) { // Code du fils
-        // Fermeture du descripteur de lecture inutilisé
-        close(pipe_fd[0]);
+    close(pipe_fd[0]);
+    close(pipe_fd[1]);
 
-        // Redirection de la sortie standard vers le descripteur d'écriture du pipe
-        if (dup2(pipe_fd[1], STDOUT_FILENO) == -1) {
-            error("Erreur lors de la redirection de la sortie standard");
-        }
+    waitpid(child_pid_ps, NULL, 0);
+    waitpid(child_pid_grep, NULL, 0);
 
-        // Fermeture du descripteur d'écriture du pipe après la redirection
-        close(pipe_fd[1]);
-
-        // Exécution de la commande ps
-        if (execlp("ps", "ps", "eaux", (char *)NULL) == -1) {
-            error("Erreur lors de l'exécution de ps");
-        }
-    } else { // Code du parent
-        // Fermeture du descripteur d'écriture inutilisé
-        close(pipe_fd[1]);
-
-        // Redirection de l'entrée standard vers le descripteur de lecture du pipe
-        if (dup2(pipe_fd[0], STDIN_FILENO) == -1) {
-            error("Erreur lors de la redirection de l'entrée standard");
-        }
-
-        // Fermeture du descripteur de lecture du pipe après la redirection
-        close(pipe_fd[0]);
-
-        // Exécution de la commande grep
-        if (execlp("grep", "grep", "^root", (char *)NULL) == -1) {
-            error("Erreur lors de l'exécution de grep");
-        }
-
-        // Attente de la fin du processus fils
-        wait(NULL);
-    }
-
-            // Affichage du message final
-        write(STDOUT_FILENO, "root est connecté\n", 18);
-
+    write(STDOUT_FILENO, MESSAGE, MESSAGE_LENGTH);
     return 0;
 }
