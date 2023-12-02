@@ -1,6 +1,0 @@
-FROM tomcat:latest
-
-# ADD <src on host> <dest on container>
-ADD jenkins.war /usr/local/tomcat/webapps/
-
-EXPOSE 8080

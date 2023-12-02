@@ -24,16 +24,20 @@ Quand on va sur l'adresse http://localhost:8080/, on nous demande de rentrer le 
 Le but de cet exercice est de reconstruire un conteneur docker proposant un service Jenkins à partir d’une base Tomcat.
 La démarche se déroule en quatre temps à savoir :
 1. La récupération des ressources.
-`docker pull tomcat:latest`
+`docker pull tomcat`
 
 2. La rédaction d’un fichier Dockerfile.
-`docker build -t <nom_image> <chemin_dockerfile>`
-> -t : prend en paramètre le nom de l’image à construire
-`docker build -t myjenkins_2 .`
+
+- Voir le fichier [Dockerfile](./Dockerfile) pour plus de détails.
 
 3. La construction de l’image.
-`docker build -t myjenkins_2 .`
+`docker build -t <nom_image> <chemin_dockerfile>`
+> -t : prend en paramètre le nom de l’image à construire
+
+`docker build -t my_image_tomcatjenkins .`
+> 💡 Il est logique de taper la commande ci-dessus dans le même dossier que le Dockerfile...
+
 
 4. Le test du service.
 > 8080:8080 : `<port_hôte>:<port_conteneur>`
-`docker run -p 8080:8080 myjenkins_2`
+`docker run --name myjenkins_tomcat_2 -p 8080:8080 my_image_tomcatjenkins`
