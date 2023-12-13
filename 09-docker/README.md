@@ -31,4 +31,4 @@ Voir le fichier de configuration [dhcpd.conf](./dhcpd.conf).
 - Stop the stack: `docker-compose down`
 
 - `docker ps` : permet de lister les conteneurs en cours d'exécution
-- 
+- Pour accéder à l'interface web de wordpress, il faut aller sur l'adresse IP de la machine hôte sur le port 8080 (http://localhost:8080/)
