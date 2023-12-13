@@ -24,3 +24,11 @@ Voir le fichier de configuration [dhcpd.conf](./dhcpd.conf).
 ## 5. L’arrêt du conteneur associé.
 `docker stop my_dhcp`
 
+# II – Proposer une stack applicative « wordpress »
+- Voir le fichier [docker-compose.yml](./docker-compose.yml) pour la stack applicative.
+- Run the stack: `docker-compose up -d`
+> -d : permet de lancer le conteneur en arrière plan
+- Stop the stack: `docker-compose down`
+
+- `docker ps` : permet de lister les conteneurs en cours d'exécution
+- 
