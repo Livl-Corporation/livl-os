@@ -13,6 +13,8 @@ Quand on va sur l'adresse http://localhost:8080/, on nous demande de rentrer le 
 > /var/jenkins_home/secrets/initialAdminPassword : chemin du fichier contenant le mot de passe
 `docker exec myjenkins_1 cat /var/jenkins_home/secrets/initialAdminPassword`
 
+![jenkins](img/1_password.png)
+
 3. La vérification de la disponibilité du service.
 `docker ps`
 
@@ -24,7 +26,7 @@ Quand on va sur l'adresse http://localhost:8080/, on nous demande de rentrer le 
 Le but de cet exercice est de reconstruire un conteneur docker proposant un service Jenkins à partir d’une base Tomcat.
 La démarche se déroule en quatre temps à savoir :
 1. La récupération des ressources.
-`docker pull tomcat`
+`docker pull tomcat:9`
 
 2. La rédaction d’un fichier Dockerfile.
 
@@ -41,3 +43,12 @@ La démarche se déroule en quatre temps à savoir :
 4. Le test du service.
 > 8080:8080 : `<port_hôte>:<port_conteneur>`
 `docker run --name myjenkins_tomcat_2 -p 8080:8080 my_image_tomcatjenkins`
+
+5. On peut maintenant accéder à l'interface web de jenkins sur l'adresse http://localhost:8080/jenkins
+![jenkins](img/2_debloquer_jenkins.png)
+
+et on peut aussi se rendre au serveur tomcat sur l'adresse http://localhost:8080
+
+- Il va falloir rentrer le mot de passe qui se trouve dans le fichier `/var/jenkins_home/secrets/initialAdminPassword` du conteneur ou directement dans la console du conteneur 
+![docker password](img/2_password.png)
+
