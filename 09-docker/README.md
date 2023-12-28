@@ -7,11 +7,10 @@
 Voir le fichier de configuration [dhcpd.conf](./dhcpd.conf).
 
 ### Commandes pour ajouter une adresse IP à l'interface eth0
-`ip addr add 10.16.64.1/24 dev eth0`
-`ifconfig eth0:0 10.16.64.1 netmask 255.255.255.0 up`
+`ip addr add 172.17.0.1/16 dev eth0`
 
 ## 3. Le démarrage du conteneur avec les paramètres appropriés.
-`docker run --name my_dhcp -v /home/jvondermarck/IT/Systems/Labs/09-docker:/data -d --network host networkboot/dhcpd`
+`docker run --name my_dhcp -v $(pwd):/data -d --network host networkboot/dhcpd`
 
 > ":/data" permet de monter le dossier courant dans le conteneur --> le fichier de configuration est accessible dans le conteneur et peut être modifié sans devoir recréer le conteneur au chemin "/data/dhcpd.conf".
 > -v : permet de monter un volume dans le conteneur (permet de monter le fichier de configuration dans le conteneur)
