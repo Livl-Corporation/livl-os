@@ -1,4 +1,4 @@
-<h1 align="center"><img src="https://user-images.githubusercontent.com/62793491/208452652-71416c5c-8261-4501-a002-afc9e2cf0a0b.png" width="224px"/><br/>
+<h1 align="center"><img src="./img/livl_shell_logo.png" width="224px"/><br/>
   Livl OS
 </h1>  
 <p align="center">Livl OS contains all the different labs exercice from Systems class</p>  
@@ -28,7 +28,14 @@ This project is developed in C language, so you need to have a C compiler instal
 # **📁 Project structure**
 
 - Each lab is in a folder named `<lab-number>-<exercise-name>`
-- Each lab folder contains the following structure:
+- There are 6 labs in this project:
+  - `01-syscall_fs`: System calls and file system
+  - `02-proc`: Process management
+  - `03-threads`: Threads management
+  - `04-signals`: Process and signals
+  - `08-docker`: Handle Docker
+  - `09-docker`: Master Docker 
+- Each lab folder contains the following structure (except for the `08-docker` and `09-docker` labs):
 
 ```
 <lab-number>-<exercise-name>
